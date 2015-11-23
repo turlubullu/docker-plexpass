@@ -2,7 +2,7 @@
 GROUP=plextmp
 
 mkdir -p /config/logs/supervisor
-chown -R plex: /config
+find /config ! -user plex -print0 | xargs -0 -I{} chown -R plex: {}
 
 touch /supervisord.log
 touch /supervisord.pid
