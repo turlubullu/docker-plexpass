@@ -2,18 +2,12 @@ FROM ubuntu:15.10
 MAINTAINER Tim Haak <tim@haak.co>
 
 ENV DEBIAN_FRONTEND="noninteractive" \
-    LANG="en_US.UTF-8" \
-    LANGUAGE="en_US.UTF-8" \
     TERM="xterm"
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup &&\
     echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
     apt-get -q update && \
     apt-get -qy --force-yes dist-upgrade && \
-    apt-get install -qy \
-      locales && \
-    echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && \
-    locale-gen  && \
     apt-get install -qy --force-yes \
       ca-certificates curl \
       openssl \
