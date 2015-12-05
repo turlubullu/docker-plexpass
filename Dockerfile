@@ -3,7 +3,7 @@ MAINTAINER Tim Haak <tim@haak.co>
 
 ENV DEBIAN_FRONTEND="noninteractive" \
     LANG="en_US.UTF-8" \
-    LC_ALL="en_US.UTF-8" \
+    LANGUAGE="en_US.UTF-8" \
     TERM="xterm"
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup &&\
@@ -35,7 +35,8 @@ RUN chmod u+x  /start.sh
 ADD ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 ENV RUN_AS_ROOT="true" \
-    CHANGE_DIR_RIGHTS="false"
+    CHANGE_DIR_RIGHTS="false" \
+    CHANGE_CONFIG_DIR_OWNERSHIP="true"
 
 EXPOSE 32400
 

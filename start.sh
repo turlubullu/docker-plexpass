@@ -24,7 +24,13 @@ fi
 
 usermod -a -G ${GROUP} plex
 
+
 if [[ -z "${SKIP_CHOWN_CONFIG}" ]]; then
+  CHANGE_CONFIG_DIR_OWNERSHIP=false
+fi
+
+
+if [ "${CHANGE_CONFIG_DIR_OWNERSHIP}" = true ]; then
   find /config ! -user plex -print0 | xargs -0 -I{} chown -R plex: {}
 fi
 
