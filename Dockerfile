@@ -1,7 +1,19 @@
-FROM timhaak/base:latest
-MAINTAINER tim@haak.co.uk
+FROM ubuntu:15.10
+MAINTAINER Tim Haak <tim@haak.co>
 
-RUN echo "deb http://shell.ninthgate.se/packages/debian plexpass main" > /etc/apt/sources.list.d/plexmediaserver.list && \
+ENV DEBIAN_FRONTEND="noninteractive" \
+    LANG="en_US.UTF-8" \
+    LC_ALL="en_US.UTF-8" \
+    LANGUAGE="en_US.UTF-8" \
+    TERM="xterm"
+
+RUN apt-get -q update && \
+    apt-get -qy --force-yes dist-upgrade && \
+    apt-get install -qy --force-yes \
+      ca-certificates \
+      openssl \
+    && \
+    echo "deb http://shell.ninthgate.se/packages/debian plexpass main" > /etc/apt/sources.list.d/plexmediaserver.list && \
     curl http://shell.ninthgate.se/packages/shell-ninthgate-se-keyring.key | apt-key add - && \
     apt-get -q update && \
     apt-get install -qy --force-yes plexmediaserver && \
