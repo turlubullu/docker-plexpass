@@ -4,13 +4,18 @@ MAINTAINER Tim Haak <tim@haak.co>
 ENV DEBIAN_FRONTEND="noninteractive" \
     LANG="en_US.UTF-8" \
     LC_ALL="en_US.UTF-8" \
-    LANGUAGE="en_US.UTF-8" \
     TERM="xterm"
 
-RUN apt-get -q update && \
+RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup &&\
+    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
+    apt-get -q update && \
     apt-get -qy --force-yes dist-upgrade && \
+    apt-get install -qy \
+      locales && \
+    echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && \
+    locale-gen  && \
     apt-get install -qy --force-yes \
-      ca-certificates \
+      ca-certificates curl \
       openssl \
     && \
     echo "deb http://shell.ninthgate.se/packages/debian plexpass main" > /etc/apt/sources.list.d/plexmediaserver.list && \
