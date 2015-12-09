@@ -9,7 +9,7 @@ Build from docker file
 ```
 git clone git@github.com:timhaak/timhaak/docker-plexpass.git
 cd timhaak/docker-plexpass
-docker build -t timhaak/docker-plexpass .
+docker build -t timhaak/plexpass .
 ```
 
 You can also obtain it via:
