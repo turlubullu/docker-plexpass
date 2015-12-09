@@ -15,7 +15,7 @@ docker build -t timhaak/plexpass .
 You can also obtain it via:
 
 ```
-docker pull timhaak/docker-plexpass
+docker pull timhaak/plexpass
 ```
 
 ---
@@ -23,7 +23,7 @@ Instructions to run:
 
 ```
 docker rm -f plex
-docker run --restart=always -d --name plex -h *your_host_name* -v /*your_config_location*:/config -v /*your_videos_location*:/data -p 32400:32400  timhaak/docker-plexpass
+docker run --restart=always -d --name plex -h *your_host_name* -v /*your_config_location*:/config -v /*your_videos_location*:/data -p 32400:32400  timhaak/plexpass
 ```
 or for auto detection to work add --net="host". Though be aware this more insecure and not best practice with docker images.
 
@@ -33,7 +33,7 @@ See https://docs.docker.com/articles/networking/#how-docker-networks-a-container
 
 ```
 docker rm -f plex
-docker run --restart=always -d --name plex --net="host" -h *your_host_name* -v /*your_config_location*:/config -v /*your_videos_location*:/data -p 32400:32400  timhaak/docker-plexpass
+docker run --restart=always -d --name plex --net="host" -h *your_host_name* -v /*your_config_location*:/config -v /*your_videos_location*:/data -p 32400:32400  timhaak/plexpass
 ```
 
 The first time it runs, it will initialize the config directory and terminate. (This most likely won't happen if you've used the --net="host")
