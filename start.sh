@@ -38,6 +38,9 @@ if [ "${CHANGE_DIR_RIGHTS}" = true ]; then
   chmod -R g+rX /data
 fi
 
+#remove previous pid if it exists
+rm ~/Library/Application\ Support/Plex\ Media\ Server/plexmediaserver.pid
+
 # Current defaults to run as root while testing.
 if [ "${RUN_AS_ROOT}" = true ]; then
   /usr/sbin/start_pms
