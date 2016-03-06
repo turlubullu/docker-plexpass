@@ -1,28 +1,27 @@
 #!/bin/bash
-set -x
-GROUP=plextmp
+set -ex
+
+## assign UID/GID for plex that matches either $UID/$GID or the permissions of
+## the files in /data
+
+if [[ -n "${UID}" ]]; then
+  usermod -u "${UID}" plex
+fi
+
+if [[ -n "${GID}" ]]; then
+  usermod -G "${GID}" plex
+else
+  usermod -G "`stat -c "%g" /data`" plex
+fi
+
+## initialize supervisor
 
 mkdir -p /config/logs/supervisor
-
 touch /supervisord.log
 touch /supervisord.pid
 chown plex: /supervisord.log /supervisord.pid
 
-# Get the proper group membership, credit to http://stackoverflow.com/a/28596874/249107
-
-TARGET_GID=$(stat -c "%g" /data)
-EXISTS=$(cat /etc/group | grep ${TARGET_GID} | wc -l)
-
-# Create new group using target GID and add plex user
-if [ $EXISTS = "0" ]; then
-  groupadd --gid ${TARGET_GID} ${GROUP}
-else
-  # GID exists, find group name and add
-  GROUP=$(getent group $TARGET_GID | cut -d: -f1)
-  usermod -a -G ${GROUP} plex
-fi
-
-usermod -a -G ${GROUP} plex
+## set the correct permissions on /config unless SKIP_CHOWN_CONFIG was set.
 
 if [[ -z "${SKIP_CHOWN_CONFIG}" ]]; then
   CHANGE_CONFIG_DIR_OWNERSHIP=false
@@ -38,12 +37,13 @@ if [ "${CHANGE_DIR_RIGHTS}" = true ]; then
   chmod -R g+rX /data
 fi
 
-#remove previous pid if it exists
-rm ~/Library/Application\ Support/Plex\ Media\ Server/plexmediaserver.pid
+## remove previous pid if it exists
 
 # Current defaults to run as root while testing.
 if [ "${RUN_AS_ROOT}" = true ]; then
+  rm -f ~/Library/Application\ Support/Plex\ Media\ Server/plexmediaserver.pid
   /usr/sbin/start_pms
 else
+  sudo -u plex -E sh -c "rm -f /config/Library/Application\ Support/Plex\ Media\ Server/plexmediaserver.pid"
   sudo -u plex -E sh -c "/usr/sbin/start_pms"
 fi
