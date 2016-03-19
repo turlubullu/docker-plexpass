@@ -32,7 +32,7 @@ ENV RUN_AS_ROOT="true" \
     CHANGE_CONFIG_DIR_OWNERSHIP="true" \
     HOME="/config"
 
-ADD ./start.sh /start.
+ADD ./start.sh /start.sh
 ADD ./Preferences.xml /Preferences.xml
 RUN chmod u+x  /start.sh
 
