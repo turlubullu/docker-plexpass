@@ -9,8 +9,11 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup &&\
     apt-get -q update && \
     apt-get -qy --force-yes dist-upgrade && \
     apt-get install -qy --force-yes \
+      iproute2 \
       ca-certificates curl \
       openssl \
+      xmlstarlet \
+      curl \
       sudo \
     && \
     echo "deb http://shell.ninthgate.se/packages/debian plexpass main" > /etc/apt/sources.list.d/plexmediaserver.list && \
@@ -24,13 +27,14 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup &&\
 
 VOLUME ["/config","/data"]
 
-ADD ./start.sh /start.sh
-RUN chmod u+x  /start.sh
-
 ENV RUN_AS_ROOT="true" \
     CHANGE_DIR_RIGHTS="false" \
     CHANGE_CONFIG_DIR_OWNERSHIP="true" \
     HOME="/config"
+
+ADD ./start.sh /start.
+ADD ./Preferences.xml /Preferences.xml
+RUN chmod u+x  /start.sh
 
 EXPOSE 32400
 
