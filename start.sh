@@ -47,17 +47,39 @@ if [ "${CHANGE_DIR_RIGHTS,,}" = "true" ]; then
   chmod -R g+rX /data
 fi
 
+# Preferences
+[ -f /etc/default/plexmediaserver ] && . /etc/default/plexmediaserver
+PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR="${PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR:-${HOME}/Library/Application Support}"
+PLEX_PREFERENCES="${PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR}/Plex Media Server/Preferences.xml"
+PLEX_PID="${PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR}/Plex Media Server/plexmediaserver.pid"
 
-if [ ! -f /config/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml ]; then
-  mkdir -p /config/Library/Application\ Support/Plex\ Media\ Server/
-  cp /Preferences.xml /config/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml
+getPreference(){
+  local preference_key="$1"
+  xmlstarlet sel -T -t -m "/Preferences" -v "@$preference_key" -n "${PLEX_PREFERENCES}"
+}
+
+setPreference(){
+  local preference_key="$1"
+  local preference_val="$2"
+  if [ -z "$(getPreference "$preference_key")" ]; then
+    xmlstarlet ed --inplace --insert "Preferences" --type attr -n "$preference_key" -v "$preference_val" ${PLEX_PREFERENCES}
+  else
+    xmlstarlet ed --inplace --update "/Preferences[@$preference_key]" -v "$preference_val" "${PLEX_PREFERENCES}"
+  fi
+}
+
+if [ ! -f ${PLEX_PREFERENCES} ]; then
+  mkdir -p $(dirname ${PLEX_PREFERENCES})
+  cp /Preferences.xml ${PLEX_PREFERENCES}
 fi
 
-# Get plex token if PLEX_USERNAME and PLEX_PASSWORD are defined
-# If not set, you will have to link your account to the Plex Media Server in Settings > Server
-[ "${PLEX_USERNAME}" ] && [ "${PLEX_PASSWORD}" ] && {
 
-  if [ -n "$(xmlstarlet sel -T -t -m "/Preferences" -v "@PlexOnlineToken" -n /config/Library/Application\ Support/Plex\ Media\ Server/Preferences.xml)" ]; then
+# Set the PlexOnlineToken to PLEX_TOKEN if defined,
+# otherwise get plex token if PLEX_USERNAME and PLEX_PASSWORD are defined,
+# otherwise account must be manually linked via Plex Media Server in Settings > Server
+if [ -n "${PLEX_TOKEN}" ]; then
+  setPreference PlexOnlineToken ${PLEX_TOKEN}
+elif [ -n "${PLEX_USERNAME}" ] && [ -n "${PLEX_PASSWORD}" ] && [ -n "$(getPreference "PlexOnlineToken")" ]; then
   # Ask Plex.tv a token key
   PLEX_TOKEN=$(curl -u "${PLEX_USERNAME}":"${PLEX_PASSWORD}" 'https://plex.tv/users/sign_in.xml' \
     -X POST -H 'X-Plex-Device-Name: PlexMediaServer' \
@@ -85,23 +107,18 @@ fi
 
 # Tells Plex the external port is not "32400" but something else.
 # Useful if you run multiple Plex instances on the same IP
-if [ "${PLEX_EXTERNALPORT}" ]; then
-  setConfig ManualPortMappingPort "${PLEX_EXTERNALPORT}"
-fi
+[ -n "${PLEX_EXTERNALPORT}" ] && setPreference ManualPortMappingPort ${PLEX_EXTERNALPORT}
 
 # Allow disabling the remote security (hidding the Server tab in Settings)
-if [ "${PLEX_DISABLE_SECURITY}" ]; then
-  setConfig disableRemoteSecurity "${PLEX_DISABLE_SECURITY}"
-fi
+[ -n "${PLEX_DISABLE_SECURITY}" ] && setPreference disableRemoteSecurity ${PLEX_DISABLE_SECURITY}
 
 # Detect networks and add them to the allowed list of networks
-PLEX_ALLOWED_NETWORKS="${PLEX_ALLOWED_NETWORKS:-$(ip route | grep "/" | awk '{print $1}' | paste -sd "," -)}"
-if [ -n "${PLEX_ALLOWED_NETWORKS}" ]; then
-  setConfig allowedNetworks "${PLEX_ALLOWED_NETWORKS}"
-fi
+PLEX_ALLOWED_NETWORKS=${PLEX_ALLOWED_NETWORKS:-$(ip route | grep '/' | awk '{print $1}' | paste -sd "," -)}
+[ -n "${PLEX_ALLOWED_NETWORKS}" ]; && setPreference allowedNetworks ${PLEX_ALLOWED_NETWORKS}
 
-#remove previous pid if it exists
-rm ~/Library/Application\ Support/Plex\ Media\ Server/plexmediaserver.pid
+
+# Remove previous pid if it exists
+rm "${PLEX_PID}"
 
 # Current defaults to run as root while testing.
 if [ "${RUN_AS_ROOT,,}" = "true" ]; then
