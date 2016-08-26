@@ -1,5 +1,4 @@
 # docker plexpass
 
-This is plexpass version of https://github.com/timhaak/docker-plex
-
-Please look there for documentation.
+All the code and build are not done out of one repo.
+at https://github.com/timhaak/docker-plex.
