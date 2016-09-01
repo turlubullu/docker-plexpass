@@ -6,10 +6,10 @@ fi
 
 # Set the defaults
 RUN_AS_ROOT=${RUN_AS_ROOT:-true}
-CHANGE_DIR_RIGHTS=${CHANGE_DIR_RIGHTS:-false}
+CHANGE_DIR_RIGHTS=${CHANGE_DIR_RIGHTS:-true}
 CHANGE_CONFIG_DIR_OWNERSHIP=${CHANGE_CONFIG_DIR_OWNERSHIP:-true}
 
-GROUP=plextmp
+GROUP=plex
 
 mkdir -p /config/logs/supervisor
 

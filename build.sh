@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-docker build --rm -t timhaak/plexpass .
+BASEDIR=$(dirname "$0")
+docker build --rm -t plex $BASEDIR

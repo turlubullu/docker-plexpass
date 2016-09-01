@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM debian:jessie
 MAINTAINER Tim Haak <tim@haak.co>
 
 ENV DEBIAN_FRONTEND="noninteractive" \
@@ -15,27 +15,21 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup &&\
       xmlstarlet \
       curl \
       sudo \
+      wget \
     && \
-    echo "deb http://shell.ninthgate.se/packages/debian plexpass main" > /etc/apt/sources.list.d/plexmediaserver.list && \
-    curl http://shell.ninthgate.se/packages/shell.ninthgate.se.gpg.key | apt-key add - && \
-    apt-get -q update && \
-    apt-get install -qy plexmediaserver && \
-    apt-get -y autoremove && \
-    apt-get -y clean && \
-    rm -rf /var/lib/apt/lists/* && \
+    cd /tmp && \
+    wget -O plexmediaserver.deb 'https://plex.tv/downloads/latest/1?channel=16&build=linux-ubuntu-x86_64&distro=ubuntu&X-Plex-Token=' && \
+    dpkg -i plexmediaserver.deb && \
     rm -rf /tmp/*
-
-VOLUME ["/config","/data"]
 
 ENV RUN_AS_ROOT="true" \
     CHANGE_DIR_RIGHTS="false" \
     CHANGE_CONFIG_DIR_OWNERSHIP="true" \
-    HOME="/config" \
+    HOME="/var/lib/plexmediaserver" \
     PLEX_DISABLE_SECURITY=1
 
 EXPOSE 32400
 
-ADD ./Preferences.xml /Preferences.xml
 ADD ./start.sh /start.sh
 
 CMD ["/start.sh"]
